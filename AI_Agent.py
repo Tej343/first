@@ -11,6 +11,38 @@ from jsonschema import validate, ValidationError
 from openai import OpenAI
 from io import BytesIO
 
+
+
+
+import streamlit as st
+
+def login():
+    st.title("Login")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        if (
+            username == st.secrets["USERNAME"]
+            and password == st.secrets["PASSWORD"]
+        ):
+            st.session_state["logged_in"] = True
+        else:
+            st.error("Invalid credentials")
+
+if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
+    login()
+    st.stop()
+
+# Your real app starts here ↓↓↓
+st.title("Welcome! You are logged in.")
+
+
+
+
+
+
 # -------------------------
 # OpenAI Client
 # -------------------------
