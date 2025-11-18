@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 import json
 import re
 import time
@@ -77,26 +76,31 @@ invoice_schema = {
 # -------------------------
 # Helper Functions
 # -------------------------
-def extract_text_from_file(file):
-    """Extract text from PDF or image using EasyOCR"""
+def extract_text_from_file(file, max_pages=5, resize_factor=0.5):
+    """Extract text from PDF or image using EasyOCR with memory-safe handling"""
     text = ""
     file_ext = file.name.split(".")[-1].lower()
-
     reader = easyocr.Reader(['en'], gpu=False)
 
     if file_ext == "pdf":
         doc = fitz.open(stream=file.read(), filetype="pdf")
-        for page in doc:
+        for page_num, page in enumerate(doc):
+            if page_num >= max_pages:
+                break
             pix = page.get_pixmap()
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            # Resize to reduce memory usage
+            img = img.resize((int(img.width*resize_factor), int(img.height*resize_factor)))
             result = reader.readtext(np.array(img))
             text += " ".join([r[1] for r in result]) + "\n"
     elif file_ext in ["jpg", "jpeg", "png", "tiff"]:
         img = Image.open(file)
+        img = img.resize((int(img.width*resize_factor), int(img.height*resize_factor)))
         result = reader.readtext(np.array(img))
         text = " ".join([r[1] for r in result])
     else:
         raise ValueError("Unsupported file type. Upload PDF or image.")
+
     return text.strip()
 
 
@@ -194,7 +198,9 @@ if uploaded_file:
     if st.button("Extract Data"):
         with st.spinner("Extracting invoice data..."):
             try:
-                inv_text = extract_text_from_file(uploaded_file)
+                # Memory-safe text extraction
+                inv_text = extract_text_from_file(uploaded_file, max_pages=5, resize_factor=0.5)
+
                 result = extract_invoice(inv_text)
                 st.success("✅ Extraction Successful!")
 
@@ -220,4 +226,3 @@ if uploaded_file:
 
             except Exception as e:
                 st.error(f"❌ Extraction Failed: {e}")
-
