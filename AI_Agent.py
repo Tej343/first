@@ -220,21 +220,20 @@
 #             except Exception as e:
 #                 st.error(f"❌ Extraction Failed: {e}")
 
+
+
 import streamlit as st
 import easyocr
+import numpy as np
 from PIL import Image
-import requests
-from io import BytesIO
 
 st.title("EasyOCR Test")
 
-url = "https://i.imgur.com/3aXfY2Q.png"  # sample image with text
-response = requests.get(url)
-img = Image.open(BytesIO(response.content))
-
-reader = easyocr.Reader(['en'], gpu=False)
-result = reader.readtext(np.array(img))
-text = " ".join([r[1] for r in result])
-
-st.write("Extracted Text:", text)
-st.image(img)
+uploaded_file = st.file_uploader("Upload an image", type=["png","jpg","jpeg"])
+if uploaded_file:
+    img = Image.open(uploaded_file)
+    reader = easyocr.Reader(['en'], gpu=False)
+    result = reader.readtext(np.array(img))
+    text = " ".join([r[1] for r in result])
+    st.write("Extracted Text:", text)
+    st.image(img)
