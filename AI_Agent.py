@@ -4,18 +4,17 @@ import json
 import re
 import time
 import fitz  # PyMuPDF
-import pytesseract
 from PIL import Image
+import numpy as np
 import pandas as pd
 from jsonschema import validate, ValidationError
 from openai import OpenAI
 from io import BytesIO
+import easyocr  # OCR library that works without Tesseract
 
-
-
-
-import streamlit as st
-
+# -------------------------
+# Login
+# -------------------------
 def login():
     st.title("Login")
 
@@ -35,20 +34,12 @@ if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
     login()
     st.stop()
 
-# Your real app starts here ↓↓↓
 st.title("Welcome! You are logged in.")
-
-
-
-
-
 
 # -------------------------
 # OpenAI Client
 # -------------------------
-# client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
 
 # -------------------------
 # Invoice JSON Schema
@@ -83,10 +74,15 @@ invoice_schema = {
 }
 
 # -------------------------
+# EasyOCR Reader Initialization
+# -------------------------
+ocr_reader = easyocr.Reader(['en'], gpu=False)  # Initialize once
+
+# -------------------------
 # Helper Functions
 # -------------------------
 def extract_text_from_file(file):
-    """Extract text from PDF or image"""
+    """Extract text from PDF or image using EasyOCR"""
     text = ""
     file_ext = file.name.split(".")[-1].lower()
 
@@ -96,7 +92,8 @@ def extract_text_from_file(file):
             text += page.get_text("text") + "\n"
     elif file_ext in ["jpg", "jpeg", "png", "tiff"]:
         img = Image.open(file)
-        text = pytesseract.image_to_string(img)
+        ocr_result = ocr_reader.readtext(np.array(img))
+        text = " ".join([res[1] for res in ocr_result])
     else:
         raise ValueError("Unsupported file type. Upload PDF or image.")
     return text.strip()
@@ -104,7 +101,6 @@ def extract_text_from_file(file):
 
 def extract_invoice(inv_text, retries=2):
     """Call OpenAI to extract structured JSON from invoice text"""
-    # Tell GPT to normalize field variations
     messages = [
         {
             "role": "system",
@@ -185,7 +181,6 @@ def prepare_tabular_data(invoice_json):
     df = pd.DataFrame(rows)
     return df
 
-
 # -------------------------
 # Streamlit UI
 # -------------------------
@@ -202,16 +197,13 @@ if uploaded_file:
                 result = extract_invoice(inv_text)
                 st.success("✅ Extraction Successful!")
 
-                # Display raw JSON
                 st.subheader("Raw JSON Output")
                 st.json(result)
 
-                # Prepare tabular DataFrame
                 df = prepare_tabular_data(result)
                 st.subheader("Invoice Details Table")
                 st.dataframe(df)
 
-                # Download CSV
                 csv_buffer = BytesIO()
                 df.to_csv(csv_buffer, index=False)
                 csv_buffer.seek(0)
