@@ -4,13 +4,13 @@ import json
 import re
 import time
 import fitz  # PyMuPDF
+import easyocr  # replaces pytesseract
 from PIL import Image
-import numpy as np
 import pandas as pd
 from jsonschema import validate, ValidationError
 from openai import OpenAI
 from io import BytesIO
-import easyocr  # OCR library that works without Tesseract
+import numpy as np
 
 # -------------------------
 # Login
@@ -74,13 +74,10 @@ invoice_schema = {
 }
 
 # -------------------------
-# EasyOCR Reader Initialization
+# OCR & File Extraction
 # -------------------------
-ocr_reader = easyocr.Reader(['en'], gpu=False)  # Initialize once
+reader = easyocr.Reader(['en'], gpu=False)  # GPU=False for Streamlit Cloud
 
-# -------------------------
-# Helper Functions
-# -------------------------
 def extract_text_from_file(file):
     """Extract text from PDF or image using EasyOCR"""
     text = ""
@@ -89,18 +86,23 @@ def extract_text_from_file(file):
     if file_ext == "pdf":
         doc = fitz.open(stream=file.read(), filetype="pdf")
         for page in doc:
-            text += page.get_text("text") + "\n"
+            pix = page.get_pixmap()
+            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            result = reader.readtext(np.array(img))
+            page_text = " ".join([r[1] for r in result])
+            text += page_text + "\n"
     elif file_ext in ["jpg", "jpeg", "png", "tiff"]:
         img = Image.open(file)
-        ocr_result = ocr_reader.readtext(np.array(img))
-        text = " ".join([res[1] for res in ocr_result])
+        result = reader.readtext(np.array(img))
+        text = " ".join([r[1] for r in result])
     else:
         raise ValueError("Unsupported file type. Upload PDF or image.")
     return text.strip()
 
-
+# -------------------------
+# OpenAI Extraction
+# -------------------------
 def extract_invoice(inv_text, retries=2):
-    """Call OpenAI to extract structured JSON from invoice text"""
     messages = [
         {
             "role": "system",
@@ -156,9 +158,10 @@ def extract_invoice(inv_text, retries=2):
 
     raise RuntimeError("Failed to extract valid JSON after retries")
 
-
+# -------------------------
+# Prepare DataFrame
+# -------------------------
 def prepare_tabular_data(invoice_json):
-    """Flatten invoice JSON into a tabular DataFrame"""
     items = invoice_json.get("Items", [])
     rows = []
     for item in items:
