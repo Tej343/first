@@ -33,9 +33,14 @@ if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
 st.title("Welcome! You are logged in.")
 
 # -------------------------
-# OpenAI Client
+# OpenAI Client (after login)
 # -------------------------
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+def get_openai_client():
+    if "client" not in st.session_state:
+        st.session_state.client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    return st.session_state.client
+
+client = get_openai_client()
 
 # -------------------------
 # Invoice JSON Schema
