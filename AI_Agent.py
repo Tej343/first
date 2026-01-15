@@ -216,6 +216,8 @@ if uploaded_file:
                 # Validation Block
                 if df['Item Name'].str.contains('Stanley Hammer', na=False).any():
                     st.warning("Unauthorized material detected (Stanley Hammer)!")
+                else:
+                    st.success("No deviations found in the invoice!")
 
                 # Download CSV
                 csv_buffer = BytesIO()
