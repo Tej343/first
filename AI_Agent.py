@@ -213,6 +213,10 @@ if uploaded_file:
                 st.subheader("Invoice Details Table")
                 st.dataframe(df)
 
+                # Validation Block
+                if df['Item Name'].str.contains('Stanley Hammer', na=False).any():
+                    st.warning("Unauthorized material detected!")
+
                 # Download CSV
                 csv_buffer = BytesIO()
                 df.to_csv(csv_buffer, index=False)
@@ -227,6 +231,4 @@ if uploaded_file:
             except Exception as e:
                 st.error(f"❌ Extraction Failed: {e}")
 
-# Validation Block
-if df['Item Name'].str.contains('Stanley Hammer', na=False).any():
-    st.warning("Unauthorized material detected!")
+
