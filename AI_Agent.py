@@ -215,7 +215,7 @@ if uploaded_file:
 
                 # Validation Block
                 if df['Item Name'].str.contains('Stanley Hammer', na=False).any():
-                    st.warning("Unauthorized material detected!")
+                    st.warning("Unauthorized material detected (Stanley Hammer)!")
 
                 # Download CSV
                 csv_buffer = BytesIO()
