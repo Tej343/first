@@ -205,8 +205,8 @@ if uploaded_file:
                 st.success("✅ Extraction Successful!")
 
                 # Display raw JSON
-                st.subheader("Raw JSON Output")
-                st.json(result)
+                # st.subheader("Raw JSON Output")
+                # st.json(result)
 
                 # Prepare tabular DataFrame
                 df = prepare_tabular_data(result)
