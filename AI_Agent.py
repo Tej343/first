@@ -192,7 +192,7 @@ def prepare_tabular_data(invoice_json):
 st.set_page_config(page_title="Invoice Data Extractor", layout="wide")
 st.title("📄 Invoice Data Extractor (PDF/Image)")
 
-uploaded_file = st.file_uploader("Upload Invoice PDF or Image", type=["pdf","jpg","jpeg","png","tiff"])
+uploaded_file = st.file_uploader("Upload Invoice PDF or Image", type=["pdf","jpg","jpeg","png","tiff", "webp"])
 
 if uploaded_file:
     if st.button("Extract Data"):
