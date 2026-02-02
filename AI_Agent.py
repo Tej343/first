@@ -217,6 +217,9 @@ if uploaded_file:
                 df['Value'] = df['Value'].str.replace(',', '').astype(float)
                 df['Total GST'] = df['Total GST'].str.replace(',', '').astype(float)
                 df['Grand Total'] = df['Grand Total'].str.replace(',', '').astype(float)
+
+                df.loc[df['Value'].isna(), 'Total GST'] = 0
+                df.loc[df['Grand Total'].isna(), 'Total GST'] = 0
                 
                 total_value = df['Value'].sum()
                 df['Total GST'] = df['Total GST']/2
