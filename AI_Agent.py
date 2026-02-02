@@ -212,8 +212,24 @@ if uploaded_file:
                 # Prepare tabular DataFrame
                 df = prepare_tabular_data(result)
                 st.subheader("Invoice Details Table")
+
+                # Sum Total Validation
+                df['Value'] = df['Value'].str.replace(',', '').astype(float)
+                df['Total GST'] = df['Total GST'].str.replace(',', '').astype(float)
+                df['Grand Total'] = df['Grand Total'].str.replace(',', '').astype(float)
+                
+                total_value = df['Value'].sum()
                 df['Total GST'] = df['Total GST']/2
+                gst = df['Total GST'].sum()
+                grand_total = df['Grand Total'].mean()
+
                 st.dataframe(df)
+
+                if abs(grand_total - total_value - gst) <= 5:
+                    st.success("Amount & GST are in-line. No deviations found!")
+                else:
+                    st.warning("Descrepancy noted in the amounts/gst. Please check!!")
+                  
 
                 # Validation Block
                 if df['Item Name'].str.contains('Stanley Hammer', na=False).any():
@@ -222,21 +238,7 @@ if uploaded_file:
                     # st.success("No deviations found in the invoice!")
                     pass
 
-                # Sum Total Validation
-
-                df['Value'] = df['Value'].str.replace(',', '').astype(float)
-                df['Total GST'] = df['Total GST'].str.replace(',', '').astype(float)
-                df['Grand Total'] = df['Grand Total'].str.replace(',', '').astype(float)
-                
-                total_value = df['Value'].sum()
-                gst = df['Total GST'].sum()
-                grand_total = df['Grand Total'].mean()
-
-                if abs(grand_total - total_value - gst) <= 5:
-                    st.success("Amount & GST are in-line. No deviations found!")
-                else:
-                    st.warning("Descrepancy noted in the amounts/gst. Please check!!")
-                    
+                  
                 
 
                 # Download CSV
