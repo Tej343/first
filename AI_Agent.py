@@ -212,6 +212,7 @@ if uploaded_file:
                 # Prepare tabular DataFrame
                 df = prepare_tabular_data(result)
                 st.subheader("Invoice Details Table")
+                df['Total GST'] = df['Total GST']/2
                 st.dataframe(df)
 
                 # Validation Block
@@ -228,7 +229,7 @@ if uploaded_file:
                 df['Grand Total'] = df['Grand Total'].str.replace(',', '').astype(float)
                 
                 total_value = df['Value'].sum()
-                gst = df['Total GST'].mean()
+                gst = df['Total GST'].sum()
                 grand_total = df['Grand Total'].mean()
 
                 if abs(grand_total - total_value - gst) <= 5:
