@@ -218,7 +218,8 @@ if uploaded_file:
                 if df['Item Name'].str.contains('Stanley Hammer', na=False).any():
                     st.warning("Unauthorized material detected (Stanley Hammer)!")
                 else:
-                    st.success("No deviations found in the invoice!")
+                    # st.success("No deviations found in the invoice!")
+                    pass
 
                 # Sum Total Validation
 
