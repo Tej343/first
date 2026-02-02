@@ -196,7 +196,7 @@ uploaded_file = st.file_uploader("Upload Invoice PDF or Image", type=["pdf","jpg
 
 if uploaded_file:
     if st.button("Perform Document Validation"):
-        with st.spinner("Extracting invoice data..."):
+        with st.spinner("Validating invoice data..."):
             try:
                 # Memory-safe text extraction
                 inv_text = extract_text_from_file(uploaded_file, max_pages=5, resize_factor=0.5)
@@ -228,7 +228,7 @@ if uploaded_file:
                 
                 total_value = df['Value'].sum()
                 gst = df['Total GST'].mean()
-                grand_total = df['Grant Total'].mean()
+                grand_total = df['Grand Total'].mean()
 
                 if abs(grand_total - total_value - gst) <= 5:
                     st.success("Amount & GST are in-line. No deviations found!")
