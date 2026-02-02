@@ -219,6 +219,19 @@ if uploaded_file:
                 else:
                     st.success("No deviations found in the invoice!")
 
+                # Sum Total Validation
+
+                total_value = df['Value'].sum()
+                gst = df['Total GST'].mean()
+                grand_total = df['Grant Total'].mean()
+
+                if abs(grand_total - total_value - gst) <= 5:
+                    st.success("Amount & GST are in-line. No deviations found!")
+                else:
+                    st.warning("Descrepancy noted in the amounts/gst. Please check!!")
+                    
+                
+
                 # Download CSV
                 csv_buffer = BytesIO()
                 df.to_csv(csv_buffer, index=False)
