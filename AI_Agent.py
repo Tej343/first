@@ -195,14 +195,15 @@ st.title("📄 Invoice Data Extractor (PDF/Image)")
 uploaded_file = st.file_uploader("Upload Invoice PDF or Image", type=["pdf","jpg","jpeg","png","tiff", "webp"])
 
 if uploaded_file:
-    if st.button("Extract Data"):
+    if st.button("Perform Document Validation"):
         with st.spinner("Extracting invoice data..."):
             try:
                 # Memory-safe text extraction
                 inv_text = extract_text_from_file(uploaded_file, max_pages=5, resize_factor=0.5)
 
                 result = extract_invoice(inv_text)
-                st.success("✅ Extraction Successful!")
+                st.success("✅ Data Extraction Successful!")
+                st.caption("Document validation in progress")
 
                 # Display raw JSON
                 # st.subheader("Raw JSON Output")
@@ -221,9 +222,9 @@ if uploaded_file:
 
                 # Sum Total Validation
 
-                df['Value'] = df['Value'].astype(float)
-                df['Total GST'] = df['Total GST'].astype(float)
-                df['Grand Total'] = df['Grand Total'].astype(float)
+                df['Value'] = df['Value'].str.replace(',', '').astype(float)
+                df['Total GST'] = df['Total GST'].str.replace(',', '').astype(float)
+                df['Grand Total'] = df['Grand Total'].str.replace(',', '').astype(float)
                 
                 total_value = df['Value'].sum()
                 gst = df['Total GST'].mean()
