@@ -202,8 +202,8 @@ if uploaded_file:
                 inv_text = extract_text_from_file(uploaded_file, max_pages=5, resize_factor=0.5)
 
                 result = extract_invoice(inv_text)
-                st.success("✅ Data Extraction Successful!")
-                st.caption("Document validation in progress")
+                # st.success("✅ Data Extraction Successful!")
+                # st.caption("Document validation in progress")
 
                 # Display raw JSON
                 # st.subheader("Raw JSON Output")
@@ -232,7 +232,7 @@ if uploaded_file:
                 if abs(grand_total - total_value - gst) <= 5:
                     st.success("Amount & GST are in-line. No deviations found!")
                 else:
-                    st.warning("Descrepancy noted in the amounts/gst. Please check!!")
+                    st.warning("Descrepancy noted in the amounts/gst section. Please check!!")
                   
 
                 # Validation Block
