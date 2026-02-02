@@ -221,6 +221,10 @@ if uploaded_file:
 
                 # Sum Total Validation
 
+                df['Value'] = df['Value'].astype(float)
+                df['Total GST'] = df['Total GST'].astype(float)
+                df['Grand Total'] = df['Grand Total'].astype(float)
+                
                 total_value = df['Value'].sum()
                 gst = df['Total GST'].mean()
                 grand_total = df['Grant Total'].mean()
