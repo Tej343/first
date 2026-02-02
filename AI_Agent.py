@@ -189,8 +189,8 @@ def prepare_tabular_data(invoice_json):
 # -------------------------
 # Streamlit UI
 # -------------------------
-st.set_page_config(page_title="Invoice Data Extractor", layout="wide")
-st.title("📄 Invoice Data Extractor (PDF/Image)")
+st.set_page_config(page_title="Invoice Document Validation", layout="wide")
+st.title("📄 Invoice Document Validation (PDF/Image)")
 
 uploaded_file = st.file_uploader("Upload Invoice PDF or Image", type=["pdf","jpg","jpeg","png","tiff", "webp"])
 
